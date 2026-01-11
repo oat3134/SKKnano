@@ -1,145 +1,77 @@
-#ifndef SKKnano
-#define SKKnano
+#ifndef SKKnano_h
+#define SKKnano_h
 
-#include"SPI.h"
-#include"Wire.h"
-#include"Servo.h"
-#include"Adafruit_GFX.h"
-#include"Adafruit_SSD1306.h"
-#include"Adafruit_MCP3008.h"
-#include"MechaQMC5883.h"
+#include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Servo.h>
+#include <MechaQMC5883.h>
+#include <SSD1306Ascii.h>
+#include <SSD1306AsciiAvrI2c.h>
 
-///////////////////////////////////////////////////////////////////////////
-Adafruit_SSD1306 OLED(-1);
+// ประกาศตัวแปรภายนอก (ใช้ extern เพื่อให้แชร์ตัวแปรร่วมกันได้)
+extern SSD1306AsciiAvrI2c OLED;
+extern MechaQMC5883 qmc;
 
-byte size_Text_OLED = 0;
+// ส่วน OLED
+void OLED_begin();
+void OLED_setTextSize(byte size_t);
+void OLED_println(byte x, byte y, String word);
+void OLED_println(byte x, byte y, int number);
+void OLED_print(byte x, byte y, String word);
+void OLED_print(byte x, byte y, int number);
+void OLED_startMenu();
 
-void OLED_Begin(){
-   OLED.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-}
+// ส่วน Motor
+#define DR1  7
+#define DR2  8
+#define PWMR 6
+#define DL1  4
+#define DL2  9
+#define PWML 5
 
-void setTextSize(byte size_t){
-      size_Text_OLED = size_t;
-}
+void Motor_begin();
+void run(int spl, int spr);
+void test_motor();
 
-void OLED_println(byte x,byte y,String word){
-    OLED.clearDisplay();
-    OLED.setTextColor(WHITE, BLACK);
-    OLED.setCursor(x, y);
-    OLED.setTextSize(size_Text_OLED);
-    OLED.println(word);
-    OLED.display();
-}
+// ส่วน Compass
+void cpset();
+int cp();
+int cpx();
+int cpy();
+int cpz();
 
-void OLED_println(byte x,byte y,int number){
-    OLED_println(x,y,String(number));
-}
+// ส่วน Servo
+void sv_begin();
+void set_servo();
+void sv_set(byte angle);
+void paste();
+void UP();
+void DOWN();
 
-void OLED_print(byte x,byte y,String word){
-    OLED.clearDisplay();
-    OLED.setTextColor(WHITE, BLACK);
-    OLED.setCursor(x, y);
-    OLED.setTextSize(size_Text_OLED);
-    OLED.print(word);
-    OLED.display();
-}
+// ส่วน Sensor
+void analogs();
+void sensor();
 
-void OLED_print(byte x,byte y,int number){
-    OLED_print(x,y,String(number));
-}
-
-///////////////////////////////////////////////////////////////////////////
-#define DR1  7  /// กำหนดสัญญาณดิจิตอลขวาที่ 1 พอร์ต 7
-#define DR2  8  /// กำหนดสัญญาณดิจิตอลขวาที่ 2 พอร์ต 8
-#define PWMR 6 /// กำหนดสัญญาณ PWM ขวาพอร์ต 6
-
-#define DL1  4  // กำหนดสัญญาณดิจิตอลซ้ายที่ 1 พอร์ต 9
-#define DL2  9  // กำหนดสัญญาณดิจิตอลซ้ายที่ 2 พอร์ต 4
-#define PWML 5  /// กำหนดสัญญาณ PWM ซ้ายพอร์ต 5
-
-void MotorBegin(){
-      pinMode(DL1, OUTPUT);
-      pinMode(DL2, OUTPUT);
-      pinMode(PWML, OUTPUT);
-      pinMode(DR1, OUTPUT);
-      pinMode(DR2, OUTPUT);
-      pinMode(PWMR, OUTPUT);
-}
-
-void run(int spl, int spr)
-{
-  if (spl > 0)
-  {
-    digitalWrite(DL1, LOW);
-    digitalWrite(DL2, HIGH);
-    analogWrite(PWML, spl);
-  }
-
-  else if (spl < 0)
-  {
-    spl=abs(spl);
-    digitalWrite(DL1, HIGH);
-    digitalWrite(DL2, LOW);
-    analogWrite(PWML, spl);
-  }
-  else
-  {
-    digitalWrite(DL1, HIGH);
-    digitalWrite(DL2, HIGH);
-  }
-  if (spr > 0)
-  {
-    digitalWrite(DR1, LOW);
-    digitalWrite(DR2, HIGH);
-    analogWrite(PWMR, spr);
-  }
-  else if (spr < 0)
-  {
-    spr=abs(spr);
-    digitalWrite(DR1, HIGH);
-    digitalWrite(DR2, LOW);
-    analogWrite(PWMR, spr);
-  }
-  else
-  {
-    digitalWrite(DR1, HIGH);
-    digitalWrite(DR2, HIGH);
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////
-MechaQMC5883 qmc;
-
-void cpset() {
-  Wire.begin();
-  qmc.init();
-}
-
-int cp()
-{     int x, y, z;
-      int a;
-      qmc.read(&x, &y, &z,&a);
-	return (a);
-}
-int cpx()
-{     int x, y, z;
-      int a;
-      qmc.read(&x, &y, &z,&a);
-	return (x);
-}
-int cpy()
-{     int x, y, z;
-      int a;
-      qmc.read(&x, &y, &z,&a);
-	return (y);
-}
-int cpz()
-{     int x, y, z;
-      int a;
-      qmc.read(&x, &y, &z,&a);
-	return (z);
-}
-/////////////////////////////////
+// ส่วน ฟังชัน หุ่นยนต์ระดับกลาง
+void T();
+void T(byte sp);
+void FT();
+void FT(byte sp);
+void FF(int T);
+void FF(int T,byte sp);
+void FD(unsigned long t);
+void FD(unsigned long t,byte sp);
+void FPP();
+void FPP(byte sp);
+void LD(int T);
+void LD(int T,byte sp);
+void RD(int T);
+void RD(int T,byte sp);
+void B();
+void B(byte sp);
+void BD(int t);
+void BD(int t,byte sp);
 
 
 #endif

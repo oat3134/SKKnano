@@ -1,9 +1,5 @@
 //////////////////ผนวกไลบรารี่จอแสดงผล//////////////////
-#include <Wire.h>
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-Adafruit_SSD1306 OLED(-1);
+#include<SKKnano.h>
 
 ///////////ตั้งค่าปุ่มกด///////////////////
 int button =  2; /// กำหนดปุ่มกดสวิตซ์ขา 2
@@ -26,8 +22,6 @@ int button =  2; /// กำหนดปุ่มกดสวิตซ์ขา 2
 
 /////////////////////////////////////////////////////
 void setup() {
-
-  OLED.begin(SSD1306_SWITCHCAPVCC, 0x3C); // กำหนดแอดเดรสของพอร์ตจอเป็น 0x3C
   //////////////////////////////////////////////////
   pinMode(button, INPUT); // ตั้งค่าขา button เป็น INPUT
   ////////กำหนดสัญญาณทุกขาเป็น OUTPUT ///////////////
@@ -71,39 +65,5 @@ void loop() {
       }
 
     }
-  }
-}
-
-/////////////////////////////////////////////////////////////////
-void run(int spl, int spr)   // ประกาศฟังก์ชัน run(กำลังมอเตอร์ซ้าาย,กำลังมอเตอร์ขวา);
-{
-  if (spl > 0){
-    digitalWrite(DL1, LOW);
-    digitalWrite(DL2, HIGH);
-    analogWrite(PWML, spl);
-  }
-  else if (spl < 0){
-    digitalWrite(DL1, HIGH);
-    digitalWrite(DL2, LOW);
-    analogWrite(PWML, -spl);
-  }
-  else{    
-    digitalWrite(DL1, LOW);
-    digitalWrite(DL2, LOW);
-  }
-  //////////////////////////////////////
-  if (spr > 0){
-    digitalWrite(DR1, LOW);
-    digitalWrite(DR2, HIGH);
-    analogWrite(PWMR, spr);
-  }
-  else if (spr < 0){
-    digitalWrite(DR1, HIGH);
-    digitalWrite(DR2, LOW);
-    analogWrite(PWMR, -spr);
-  }
-  else{
-    digitalWrite(DR1, LOW);
-    digitalWrite(DR2, LOW);
   }
 }

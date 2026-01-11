@@ -1,4 +1,4 @@
-#include <Servo.h> //เรียกใช้งาน library เซอโว
+#include<SKKnano.h>
 
 Servo sv1; // กำหนดชื่อเซอโวตัวที่ 1 ว่า sv1
 const int buttonPin = 2; //ประกาศตัวแปร buttonPin แทน Pin ของปุ่มกด ซึ่งต่อไว้กับ D2

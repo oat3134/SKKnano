@@ -39,7 +39,7 @@ void MechaQMC5883::read(uint16_t* x,uint16_t* y,uint16_t* z){
   Wire.beginTransmission(address);
   Wire.write(0x00);
   Wire.endTransmission();
-  Wire.requestFrom(address, 6);
+  Wire.requestFrom((uint8_t)address, (uint8_t)6);
   *x = Wire.read(); //LSB  x
   *x |= Wire.read() << 8; //MSB  x
   *y = Wire.read(); //LSB  z

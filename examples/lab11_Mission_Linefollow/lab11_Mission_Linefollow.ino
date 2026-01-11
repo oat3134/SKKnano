@@ -1,10 +1,5 @@
 //////// ผนวกไลบรารี่ ////////////
-#include <Wire.h>
-#include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <Servo.h>
-Adafruit_SSD1306 OLED(-1);
+#include<SKKnano.h>
 
 ///////////ตั้งค่าปุ่มกด///////////////////
 int button =  2; /// กำหนดปุ่มกดสวิตซ์ขา 2
@@ -28,20 +23,12 @@ Servo sv1;     // ประกาศการใช้งาน sv1
 #define a3 500// ค่ากลางเซนเซอร์ A3 (ขวาสุด)
 
 ///////////////////////////////////////////////
-int s0,s1,s2,s3 ;
-
-void analogs()
-{
-  s0 = analogRead(0);
-  s1 = analogRead(1);
-  s2 = analogRead(2);
-  s3 = analogRead(3);
-}
+int s0,s1,s2,s3,s4 ;
 
 //////////////////////////////////////////////
 
 void setup() {
-  OLED.begin(SSD1306_SWITCHCAPVCC, 0x3C); // กำหนดแอดเดรสของพอร์ตจอเป็น 0x3C (for the 128x64)
+  OLED_begin(); // กำหนดแอดเดรสของพอร์ตจอ
   pinMode(2, INPUT); // ตั้งค่าขา 2 เป็น INPUT
   ////////กำหนดสัญญาณทุกขาเป็น OUTPUT /////////
   pinMode(DL1, OUTPUT);
@@ -57,21 +44,19 @@ void setup() {
 void loop() {
   int sw = digitalRead(button);     // ให้ sw อ่านค่า digital จากพอร์ต 2(button)
   int nob = analogRead(7);          // ให้ nob เทียบเท่าค่า A7
-  int menu = map(nob, 0, 1023, 0, 9); // เทียบอัตราส่วนของพอร์ต A7 จาก 0-1023 เพื่อทำเป็นเมนู 0-12
-  OLED.clearDisplay();              // ล้างค่าหน้าจอ
-  OLED.setTextColor(WHITE, BLACK);  //สีอักษรเป็นสีขาว ,พื้นหลังดำ
+  int menu = map(nob, 0, 1023, 0, 10); // เทียบอัตราส่วนของพอร์ต A7 จาก 0-1023 เพื่อทำเป็นเมนู 0-12
+  OLED.clear();              // ล้างค่าหน้าจอ
   OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-  OLED.setTextSize(2);        // เซตขนาดอักษรมีขนาดเป็น 2
+  OLED_setTextSize(2);        // เซตขนาดอักษรมีขนาดเป็น 2
   OLED.print("   ");         // วรรค
   OLED.println(menu);        // แสดงค่า Menu ที่ได้จากการ map nob ให้เหลือ 0-12
-  OLED.setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 2
+  OLED_setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 2
   OLED.println("  SKK");     // พิมพ์คำว่า kruro
   OLED.print("  ");                      // วรรค
   OLED.print(nob);                     // แสดงค่าที่อ่านได้จาก nob หรือ Analog7
   OLED.println(" Robot");     // พิมพ์คำว่า Robot
-  OLED.display();
   #define mode 1
-  if ((sw == mode) and (menu == 0)){sensor();}
+  if ((sw == mode) and (menu == 0)){sensor_linef();}
   if ((sw == mode) and (menu == 1)){sv_knob();}
   if ((sw == mode) and (menu == 2)){menu2();}
   if ((sw == mode) and (menu == 3)){menu3();}
@@ -81,21 +66,20 @@ void loop() {
   if ((sw == mode) and (menu == 7)){menu7();}
   if ((sw == mode) and (menu == 8)){menu8();}
   if ((sw == mode) and (menu == 9)){menu9();}
+  if ((sw == mode) and (menu == 10)){menu10();}
   delay(100);
 }
 
-void sensor(){
+void sensor_linef(){
   while (true) {
     analogs();
-    OLED.clearDisplay();
-    OLED.setTextColor(WHITE, BLACK);  //สีอักษรเป็นสีขาว ,พื้นหลังดำ
+    OLED.clear();
     OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-    OLED.setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 1
+    OLED_setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 1
     OLED.print("       S0 = "); OLED.println(s0);  // แสดงค่าเซนเซอร์ S0
     OLED.print("       S1 = "); OLED.println(s1);  // แสดงค่าเซนเซอร์ S1
     OLED.print("       S2 = "); OLED.println(s2);  // แสดงค่าเซนเซอร์ S2
     OLED.print("       S3 = "); OLED.println(s3);  // แสดงค่าเซนเซอร์ S3
-    OLED.display();
     delay(50);
   }
 }
@@ -105,13 +89,11 @@ void sv_knob() {
   while(true){
     int vr = analogRead(A7);  // กำหนดตัวแปรจำนวนเต็มอ่านค่าอนาล็อกที่พอร์ต 7
     int nob = map(vr, 0, 1023, 0, 180); // ทำการ map อัตราส่วนจากสัญญาณ analog 0-1023 เป็น 0-180
-    OLED.clearDisplay();    // เคลียร์หน้าจอ oled
-    OLED.setTextColor(WHITE, BLACK);  //สีอักษรเป็นสีขาว ,พื้นหลังดำ
+    OLED.clear();    // เคลียร์หน้าจอ oled
     OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-    OLED.setTextSize(2);        // เซตขนาดอักษรมีขนาดเป็น 2
+    OLED_setTextSize(2);        // เซตขนาดอักษรมีขนาดเป็น 2
     OLED.print("SV = ");     // พิมพ์คำว่า SV1 =
     OLED.println(nob);     // นำค่า nob มาแสดงใน oled
-    OLED.display();        // เปิดฟังก์ชันแสดงผล
     sv1.write(nob);        // สั่งเซอร์โวมอเตอร์ให้หมุนไปตามค่าองศาที่ทำการ nob ไว้
     delay(50);             // หน่วงเวลา 0.05 วินาที
   }
@@ -205,39 +187,6 @@ void R0(){while (1){analogs();run(150,-150);if(s3<A3){run(0,0);break;}}} //S0
 void R1(){while (1){analogs();run(150,-150);if(s2<A2){run(0,0);break;}}} //S1
 void R2(){while (1){analogs();run(150,-150);if(s1<A1){run(0,0);break;}}} //S2
 
-/////////////////////////////ฟังก์ชันมอเตอร์///////////////////////////////////
-void run(int spl, int spr)   // ประกาศฟังก์ชัน run(กำลังมอเตอร์ซ้าาย,กำลังมอเตอร์ขวา);
-{
-  if (spl > 0){
-    digitalWrite(DL1, LOW);
-    digitalWrite(DL2, HIGH);
-    analogWrite(PWML, spl);
-  }
-  else if (spl < 0){
-    digitalWrite(DL1, HIGH);
-    digitalWrite(DL2, LOW);
-    analogWrite(PWML, -spl);
-  }
-  else{
-    digitalWrite(DL1, LOW);
-    digitalWrite(DL2, LOW);
-  }
-  //////////////////////////////////////
-  if (spr > 0){
-    digitalWrite(DR1, LOW);
-    digitalWrite(DR2, HIGH);
-    analogWrite(PWMR, spr);
-  }
-  else if (spr < 0){
-    digitalWrite(DR1, HIGH);
-    digitalWrite(DR2, LOW);
-    analogWrite(PWMR, -spr);
-  }
-  else{
-    digitalWrite(DR1, LOW);
-    digitalWrite(DR2, LOW);
-  }
-}
 //////////////////////////////// เรียกใช้ code menu ////////////////////////////////////////
 /*
   P();
@@ -301,5 +250,15 @@ void menu9()   /// code 9 ที่นี่
 {
 
   up();
+
+}
+
+void menu10()   /// code 9 ที่นี่
+{
+
+  run(200,200);delay(1000);run(0,0);delay(1000);
+  run(-200,200);delay(1000);run(0,0);delay(1000);
+  run(200,-200);delay(1000);run(0,0);delay(1000);
+  run(-200,-200);delay(1000);run(0,0);delay(1000);
 
 }
