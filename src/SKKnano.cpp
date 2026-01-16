@@ -613,4 +613,44 @@ void cpr_OLED(float targetAngle,uint8_t speed){
   }
 }
 
+void FDcp(int baseSpeed,float Kp,unsigned long t) {
+  OLED.clear();
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  float targetAngle = 0;    // มุมเป้าหมาย (ทิศที่ต้องการรักษาไว้)
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    //previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+    float error = targetAngle - currentAngle;  
+    int turnAdjustment = constrain(error * Kp,-baseSpeed*0.25,baseSpeed*0.25);
+
+    OLED.setCursor(0, 0);                // เซตตำแหน่ง 0,0
+    OLED.set2X();                 // เซตขนาดอักษรมีขนาดเป็น 2
+    OLED.print(F("    "));                   // วรรค
+    OLED.print(turnAdjustment);
+    OLED.println(F("    "));
+    OLED.set1X();
+    OLED.println(F("    "));
+    OLED.print(F("kp = "));
+    OLED.print(Kp);
+
+    run(baseSpeed - turnAdjustment, baseSpeed + turnAdjustment);
+
+    if(millis() - previousTime >= t){
+      run(0,0);
+      OLED.clear();
+      break;
+    }
+
+  }
+}
+
+
 
