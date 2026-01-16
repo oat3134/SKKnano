@@ -153,6 +153,7 @@ void sensor()
   }
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 extern int cen0,cen1,cen2,cen3,cen4;
@@ -297,3 +298,319 @@ void BD(int t){
 void BD(int t,byte sp){
     run(-sp,-sp);delay(t);run(0,0);delay(100);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+extern MPU6050 accelgyro;
+extern int16_t ax, ay, az;
+extern int16_t gx, gy, gz;
+extern float gyroErrorZ;
+
+void Set_mpu6050(){
+  accelgyro.initialize();
+
+  OLED.set1X();             // Normal 1:1 pixel scale
+  OLED.setCursor(0,0);             // Start at top-left corner
+  OLED.println(F("Calibrating... "));OLED.println(F(""));
+  OLED.set2X();
+  OLED.println(F("DO NOT MOVE"));OLED.println(F(""));
+
+  for(int i=0; i<200; i++) {
+    accelgyro.getRotation(&gx, &gy, &gz);
+    gyroErrorZ += gz;
+    delay(1);
+  }
+  gyroErrorZ /= 200.0; // หาค่าเฉลี่ย Error
+  delay(2000);
+
+  OLED.clear();
+
+}
+
+void sensor_with_mpu6050()
+{
+  delay(500);
+  OLED.clear();
+  while (true) {
+    uint16_t vr = analogRead(7);
+    analogs();
+    
+    int s_values[] = {s0, s1, s2, s3, s4}; 
+    int total_items = 5;
+    
+    int lines_per_screen = 4; 
+    
+    int startIndex = map(vr, 0, 1023, 0, (total_items - lines_per_screen) + 1); 
+    
+    if (startIndex > total_items - lines_per_screen) {
+        startIndex = total_items - lines_per_screen;
+    }
+    if (startIndex < 0) startIndex = 0;
+
+    OLED.set1X(); 
+    for (int i = 0; i < lines_per_screen; i++) {
+      int currentDataIndex = startIndex + i; 
+
+      OLED.setCursor(0, i); 
+      
+      OLED.print(F("    S"));
+      OLED.print(currentDataIndex);
+      OLED.print(F(" : "));
+      OLED.print(s_values[currentDataIndex]);
+      
+      OLED.clearToEOL(); 
+    }
+
+    float currentAngle = 0.0;
+    unsigned long previousTime = millis();
+    bool sw = digitalRead(2);
+    if(sw == 1){
+      delay(500);
+      OLED.clear();
+      while(1){
+        sw = digitalRead(2);
+        accelgyro.getRotation(&gx, &gy, &gz);
+        unsigned long currentTime = millis();
+        float dt = (currentTime - previousTime) / 1000.0;
+        previousTime = currentTime;
+        float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+        if(abs(gyroZ_degPerSec) < 0.5) {
+          gyroZ_degPerSec = 0;
+        }
+        currentAngle += (gyroZ_degPerSec * dt);
+        OLED.setCursor(0, 0);             // เซตตำแหน่ง 0,0
+        OLED.set2X();              // เซตขนาดอักษรมีขนาดเป็น 2
+        OLED.print(currentAngle);             //  แสดงค่า S7
+        OLED.print(" ");             //  แสดงค่า S7
+        if(sw == 1){
+          delay(500);
+          break;
+        }
+      }
+    }
+    
+    delay(50); 
+  }
+}
+
+void cpl(float targetAngle){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(-100,100);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cpl(float targetAngle,uint8_t speed){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(-speed,speed);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cpl_OLED(float targetAngle){
+  OLED.clear();
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    OLED.set2X();
+    OLED.setCursor(0,0);
+    OLED.print(currentAngle);
+    OLED.print(F(" "));
+
+    if (abs(currentAngle) < targetAngle) {
+      run(-100,100);
+    }
+    else{
+      run(0,0);
+      OLED.clear();
+      break;
+    }
+  }
+}
+
+void cpl_OLED(float targetAngle,uint8_t speed){
+  OLED.clear();
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    OLED.set2X();
+    OLED.setCursor(0,0);
+    OLED.print(currentAngle);
+    OLED.print(F(" "));
+
+    if (abs(currentAngle) < targetAngle) {
+      run(-speed,speed);
+    }
+    else{
+      run(0,0);
+      OLED.clear();
+      break;
+    }
+  }
+}
+
+void cpr(float targetAngle){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(100,-100);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cpr(float targetAngle,uint8_t speed){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(speed,-speed);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cpr_OLED(float targetAngle){
+  OLED.clear();
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    OLED.set2X();
+    OLED.setCursor(0,0);
+    OLED.print(currentAngle);
+    OLED.print(F(" "));
+
+    if (abs(currentAngle) < targetAngle) {
+      run(100,-100);
+    }
+    else{
+      run(0,0);
+      OLED.clear();
+      break;
+    }
+  }
+}
+
+void cpr_OLED(float targetAngle,uint8_t speed){
+  OLED.clear();
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    OLED.set2X();
+    OLED.setCursor(0,0);
+    OLED.print(currentAngle);
+    OLED.print(F(" "));
+
+    if (abs(currentAngle) < targetAngle) {
+      run(speed,-speed);
+    }
+    else{
+      run(0,0);
+      OLED.clear();
+      break;
+    }
+  }
+}
+
+

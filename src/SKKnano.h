@@ -7,8 +7,11 @@
 #include <Servo.h>
 #include <SSD1306Ascii.h>
 #include "SSD1306AsciiAvrI2c.h"
+#include <I2Cdev.h>
+#include <MPU6050.h>
 
 extern SSD1306AsciiAvrI2c;
+extern MPU6050;
 
 // ส่วน Motor
 #define DR1  7
@@ -54,6 +57,18 @@ void B();
 void B(byte sp);
 void BD(int t);
 void BD(int t,byte sp);
+
+// ส่วน mpu6050
+void Set_mpu6050();
+void sensor_with_mpu6050();
+void cpl(float targetAngle);
+void cpl(float targetAngle,uint8_t speed);
+void cpl_OLED(float targetAngle);
+void cpl_OLED(float targetAngle,uint8_t speed);
+void cpr(float targetAngle);
+void cpr(float targetAngle,uint8_t speed);
+void cpr_OLED(float targetAngle);
+void cpr_OLED(float targetAngle,uint8_t speed);
 
 
 #endif
