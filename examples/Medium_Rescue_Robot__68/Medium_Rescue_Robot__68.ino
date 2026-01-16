@@ -16,6 +16,7 @@ uint8_t servo3 = 12;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(button,INPUT);
   OLED_begin();  // กำหนดแอดเดรสของพอร์ตจอเป็น 0x3C (for the 128x64)
   Motor_begin();
   ///////////// ตั้งพอร์ตเซอร์โว////////////
