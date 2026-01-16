@@ -24,19 +24,12 @@ int button =  2; /// กำหนดปุ่มกดสวิตซ์ขา 2
 void setup() {
   //////////////////////////////////////////////////
   pinMode(button, INPUT); // ตั้งค่าขา button เป็น INPUT
-  ////////กำหนดสัญญาณทุกขาเป็น OUTPUT ///////////////
-  pinMode(DL1, OUTPUT);
-  pinMode(DL2, OUTPUT);
-  pinMode(PWML, OUTPUT);
-
-  pinMode(DR1, OUTPUT);
-  pinMode(DR2, OUTPUT);
-  pinMode(PWMR, OUTPUT);
-
   ////////////////////////////
+  Motor_begin();
 }
 
 void loop() {
+
   int sw = digitalRead(button);
   if (sw==1){
     while(true){
@@ -47,8 +40,10 @@ void loop() {
       int s3 = analogRead(3);
 
       ///////////////////เงื่อนไขการแทกเส้นที่นี่ หาอัตราที่เหมาะสมเอง///////////////
-
-      if(s0<a0){      // S0
+      if((s0<a0 and s1<a1) or (s2<a2 and s3<a3)){
+        run(0,0);delay(100);break;
+      }
+      else if(s0<a0){      // S0
         run(-40,100);
       }
       else if(s1<a1){ // S1
@@ -66,4 +61,5 @@ void loop() {
 
     }
   }
+
 }

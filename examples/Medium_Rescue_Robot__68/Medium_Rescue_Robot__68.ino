@@ -21,6 +21,7 @@ uint8_t servo3 = 12;
 void setup() {
   Serial.begin(9600);
   pinMode(button,INPUT);
+
   #if RST_PIN >= 0
     OLED.begin(&Adafruit128x32, I2C_ADDRESS, RST_PIN);
   #else // RST_PIN >= 0
@@ -29,6 +30,7 @@ void setup() {
   OLED.setI2cClock(200000); // ลดความเร็วลงเพื่อความเสถียร
   OLED.setFont(Adafruit5x7);
   OLED.clear();
+  
   Motor_begin();
   ///////////// ตั้งพอร์ตเซอร์โว////////////
   sv_begin();

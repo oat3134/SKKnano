@@ -1,9 +1,19 @@
 #include<SKKnano.h>
+SSD1306AsciiAvrI2c OLED;
+#define I2C_ADDRESS 0x3C
+#define RST_PIN -1
 //////////////////////////////////////////////////////
 
 void setup() {
 
-  OLED_begin(); // กำหนดแอดเดรสของพอร์ตจอเป็น 0x3C (for the 128x64)
+  #if RST_PIN >= 0
+    OLED.begin(&Adafruit128x32, I2C_ADDRESS, RST_PIN);
+  #else // RST_PIN >= 0
+    OLED.begin(&Adafruit128x32, I2C_ADDRESS);
+  #endif // RST_PIN >= 0
+  OLED.setI2cClock(200000); // ลดความเร็วลงเพื่อความเสถียร
+  OLED.setFont(Adafruit5x7);
+  OLED.clear();
 
 }
 
@@ -17,9 +27,8 @@ void loop() {
 
  ////////////////////////////////////////////////////////
 
-  OLED.clear();
   OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-  OLED_setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 1
+  OLED.set1X();        // เซตขนาดอักษรมีขนาดเป็น 1
   OLED.print("       S0 = "); OLED.println(s0);  // แสดงค่าเซนเซอร์ S0
   OLED.print("       S1 = "); OLED.println(s1);  // แสดงค่าเซนเซอร์ S1
   OLED.print("       S2 = "); OLED.println(s2);  // แสดงค่าเซนเซอร์ S2

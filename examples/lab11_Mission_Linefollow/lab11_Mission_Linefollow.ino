@@ -1,5 +1,8 @@
 //////// ผนวกไลบรารี่ ////////////
 #include<SKKnano.h>
+SSD1306AsciiAvrI2c OLED;
+#define I2C_ADDRESS 0x3C
+#define RST_PIN -1
 
 ///////////ตั้งค่าปุ่มกด///////////////////
 int button =  2; /// กำหนดปุ่มกดสวิตซ์ขา 2
@@ -28,15 +31,18 @@ int s0,s1,s2,s3,s4 ;
 //////////////////////////////////////////////
 
 void setup() {
-  OLED_begin(); // กำหนดแอดเดรสของพอร์ตจอ
+
+  #if RST_PIN >= 0
+    OLED.begin(&Adafruit128x32, I2C_ADDRESS, RST_PIN);
+  #else // RST_PIN >= 0
+    OLED.begin(&Adafruit128x32, I2C_ADDRESS);
+  #endif // RST_PIN >= 0
+  OLED.setI2cClock(200000); // ลดความเร็วลงเพื่อความเสถียร
+  OLED.setFont(Adafruit5x7);
+  OLED.clear();
+
   pinMode(2, INPUT); // ตั้งค่าขา 2 เป็น INPUT
-  ////////กำหนดสัญญาณทุกขาเป็น OUTPUT /////////
-  pinMode(DL1, OUTPUT);
-  pinMode(DL2, OUTPUT);
-  pinMode(PWML, OUTPUT);
-  pinMode(DR1, OUTPUT);
-  pinMode(DR2, OUTPUT);
-  pinMode(PWMR, OUTPUT);
+  Motor_begin();
   sv1.attach(ss1); // เรียกใช้งานเตรียมตอบสนองเซอร์โว sv1
   sv_set();
 }
@@ -44,17 +50,18 @@ void setup() {
 void loop() {
   int sw = digitalRead(button);     // ให้ sw อ่านค่า digital จากพอร์ต 2(button)
   int nob = analogRead(7);          // ให้ nob เทียบเท่าค่า A7
-  int menu = map(nob, 0, 1023, 0, 10); // เทียบอัตราส่วนของพอร์ต A7 จาก 0-1023 เพื่อทำเป็นเมนู 0-12
-  OLED.clear();              // ล้างค่าหน้าจอ
-  OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-  OLED_setTextSize(2);        // เซตขนาดอักษรมีขนาดเป็น 2
-  OLED.print("   ");         // วรรค
-  OLED.println(menu);        // แสดงค่า Menu ที่ได้จากการ map nob ให้เหลือ 0-12
-  OLED_setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 2
-  OLED.println("  SKK");     // พิมพ์คำว่า kruro
-  OLED.print("  ");                      // วรรค
-  OLED.print(nob);                     // แสดงค่าที่อ่านได้จาก nob หรือ Analog7
-  OLED.println(" Robot");     // พิมพ์คำว่า Robot
+  int menu = map(nob, 0, 1023, 0, 9); // เทียบอัตราส่วนของพอร์ต A7 จาก 0-1023 เพื่อทำเป็นเมนู 0-12
+  OLED.setCursor(0, 0);                // เซตตำแหน่ง 0,0
+  OLED.set2X();                 // เซตขนาดอักษรมีขนาดเป็น 2
+  OLED.print(F("    "));                   // วรรค
+  OLED.println(menu);                  // แสดงค่า Menu ที่ได้จากการ map nob ให้เหลือ 0-12
+  OLED.set1X();                 // เซตขนาดอักษรมีขนาดเป็น 2
+  OLED.println(F("  SKK--UTHAI--ROBOT  "));
+  OLED.println(F(" "));
+  OLED.print(nob);
+  OLED.print(F("  "));  // วรรค
+  OLED.print(F("MeNu"));
+  OLED.print(F("  "));  // วรรค
   #define mode 1
   if ((sw == mode) and (menu == 0)){sensor_linef();}
   if ((sw == mode) and (menu == 1)){sv_knob();}
@@ -66,7 +73,6 @@ void loop() {
   if ((sw == mode) and (menu == 7)){menu7();}
   if ((sw == mode) and (menu == 8)){menu8();}
   if ((sw == mode) and (menu == 9)){menu9();}
-  if ((sw == mode) and (menu == 10)){menu10();}
   delay(100);
 }
 
@@ -75,7 +81,7 @@ void sensor_linef(){
     analogs();
     OLED.clear();
     OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-    OLED_setTextSize(1);        // เซตขนาดอักษรมีขนาดเป็น 1
+    OLED.set1X();        // เซตขนาดอักษรมีขนาดเป็น 1
     OLED.print("       S0 = "); OLED.println(s0);  // แสดงค่าเซนเซอร์ S0
     OLED.print("       S1 = "); OLED.println(s1);  // แสดงค่าเซนเซอร์ S1
     OLED.print("       S2 = "); OLED.println(s2);  // แสดงค่าเซนเซอร์ S2
@@ -91,7 +97,7 @@ void sv_knob() {
     int nob = map(vr, 0, 1023, 0, 180); // ทำการ map อัตราส่วนจากสัญญาณ analog 0-1023 เป็น 0-180
     OLED.clear();    // เคลียร์หน้าจอ oled
     OLED.setCursor(0, 0);       // เซตตำแหน่ง 0,0
-    OLED_setTextSize(2);        // เซตขนาดอักษรมีขนาดเป็น 2
+    OLED.set2X();        // เซตขนาดอักษรมีขนาดเป็น 2
     OLED.print("SV = ");     // พิมพ์คำว่า SV1 =
     OLED.println(nob);     // นำค่า nob มาแสดงใน oled
     sv1.write(nob);        // สั่งเซอร์โวมอเตอร์ให้หมุนไปตามค่าองศาที่ทำการ nob ไว้
@@ -250,15 +256,5 @@ void menu9()   /// code 9 ที่นี่
 {
 
   up();
-
-}
-
-void menu10()   /// code 9 ที่นี่
-{
-
-  run(200,200);delay(1000);run(0,0);delay(1000);
-  run(-200,200);delay(1000);run(0,0);delay(1000);
-  run(200,-200);delay(1000);run(0,0);delay(1000);
-  run(-200,-200);delay(1000);run(0,0);delay(1000);
 
 }
