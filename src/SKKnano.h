@@ -69,7 +69,7 @@ void cpr(float targetAngle);
 void cpr(float targetAngle,uint8_t speed);
 void cpr_OLED(float targetAngle);
 void cpr_OLED(float targetAngle,uint8_t speed);
-void FDcp(int baseSpeed,float Kp,unsigned long t)ว
+void FDcp(int baseSpeed,float Kp,unsigned long t);
 
 
 #endif
