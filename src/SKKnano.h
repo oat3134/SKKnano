@@ -8,10 +8,8 @@
 #include <SSD1306Ascii.h>
 #include "SSD1306AsciiAvrI2c.h"
 
-extern SSD1306AsciiAvrI2c OLED;
+extern SSD1306AsciiAvrI2c;
 
-// ส่วน OLED
-void OLED_begin();
 void OLED_setTextSize(byte size_t);
 
 // ส่วน Motor

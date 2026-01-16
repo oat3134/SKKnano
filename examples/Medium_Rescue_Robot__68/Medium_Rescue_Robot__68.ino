@@ -1,5 +1,9 @@
 ////////////////////// เปิดใช้งาน เซอร์โว(Servo)บรรทัดที่ 20,21,22 //////////////////
 #include <SKKnano.h>
+SSD1306AsciiAvrI2c OLED;
+#define I2C_ADDRESS 0x3C
+#define RST_PIN -1
+
 Servo sv1, sv2, sv3;
 ///////////ตั้งค่าปุ่มกด///////////////////
 int button = 2;  /// กำหนดปุ่มกดสวิตซ์ขา 2
@@ -17,20 +21,23 @@ uint8_t servo3 = 12;
 void setup() {
   Serial.begin(9600);
   pinMode(button,INPUT);
-  OLED_begin();  // กำหนดแอดเดรสของพอร์ตจอเป็น 0x3C (for the 128x64)
+  #if RST_PIN >= 0
+    OLED.begin(&Adafruit128x32, I2C_ADDRESS, RST_PIN);
+  #else // RST_PIN >= 0
+    OLED.begin(&Adafruit128x32, I2C_ADDRESS);
+  #endif // RST_PIN >= 0
+  OLED.setI2cClock(200000); // ลดความเร็วลงเพื่อความเสถียร
+  OLED.setFont(Adafruit5x7);
+  OLED.clear();
   Motor_begin();
   ///////////// ตั้งพอร์ตเซอร์โว////////////
   sv_begin();
   sv_set(90);
 }
 
-bool sw;
-uint16_t nob;
-uint16_t menu;
-
 void loop() {
   bool sw = digitalRead(button);        // ให้ sw อ่านค่า digital จากพอร์ต 2(button)
-  uint16_t nob = analogRead(7);             // ให้ nob เทียบเท่าค่า A7
+  int nob = analogRead(7);             // ให้ nob เทียบเท่าค่า A7
   uint16_t menu = map(nob, 0, 1023, 0, 5);  // เทียบอัตราส่วนของพอร์ต A7 จาก 0-1023 เพื่อทำเป็นเมนู 0-12
   OLED.setCursor(0, 0);                // เซตตำแหน่ง 0,0
   OLED.set2X();                 // เซตขนาดอักษรมีขนาดเป็น 2

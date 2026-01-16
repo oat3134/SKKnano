@@ -1,18 +1,10 @@
 #include "SKKnano.h"
 
-SSD1306AsciiAvrI2c OLED;
+extern SSD1306AsciiAvrI2c OLED;
 #define I2C_ADDRESS 0x3C
 #define RST_PIN -1
 
 byte size_Text_OLED = 0;
-
-// ฟังก์ชัน OLED
-void OLED_begin() {
-  OLED.begin(&Adafruit128x32, I2C_ADDRESS, RST_PIN);
-  OLED.setI2cClock(400000); // ลดความเร็วลงเพื่อความเสถียร
-  OLED.setFont(Adafruit5x7);
-  OLED.clear();
-}
 
 void OLED_setTextSize(byte size_t) {
   if(size_t == 1){
@@ -136,8 +128,8 @@ void analogs() {
 
 void sensor()
 {
+  delay(500);
   OLED.clear();
-  
   while (true) {
     uint16_t vr = analogRead(7);
     analogs();
