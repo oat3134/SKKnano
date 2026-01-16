@@ -4,17 +4,6 @@ extern SSD1306AsciiAvrI2c OLED;
 #define I2C_ADDRESS 0x3C
 #define RST_PIN -1
 
-byte size_Text_OLED = 0;
-
-void OLED_setTextSize(byte size_t) {
-  if(size_t == 1){
-    OLED.set1X();
-  }
-  else{
-    OLED.set2X();
-  }
-}
-
 // ฟังก์ชัน Motor
 void Motor_begin() {
   pinMode(DL1, OUTPUT);

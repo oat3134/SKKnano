@@ -10,8 +10,6 @@
 
 extern SSD1306AsciiAvrI2c;
 
-void OLED_setTextSize(byte size_t);
-
 // ส่วน Motor
 #define DR1  7
 #define DR2  8
