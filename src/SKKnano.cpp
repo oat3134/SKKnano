@@ -9,8 +9,9 @@ byte size_Text_OLED = 0;
 // ฟังก์ชัน OLED
 void OLED_begin() {
   OLED.begin(&Adafruit128x32, I2C_ADDRESS, RST_PIN);
-  OLED.setI2cClock(400000); // ลดความเร็วลงเพื่อความเสถียร
+  OLED.setI2cClock(100000); // ลดความเร็วลงเพื่อความเสถียร
   OLED.setFont(Adafruit5x7);
+  OLED.clear();
 }
 
 void OLED_setTextSize(byte size_t) {
