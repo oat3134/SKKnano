@@ -274,7 +274,7 @@ void B() //ถอยหลัง==โดยใช้เซนเซอร์ 2 �
     }
     else if (s3 < cen3) {run(mbl, -mbr);}
     else if (s4 < cen4) {run(-mbl, mbr);}
-    else {run(bl,br);} 
+    else {run(-bl,-br);} 
   }
 }
 
@@ -287,7 +287,7 @@ void B(byte sp) //ถอยหลัง==โดยใช้เซนเซอร
     }
     else if (s3 < cen3) {run(mbl, -mbr);}
     else if (s4 < cen4) {run(-mbl, mbr);}
-    else {run(sp,sp);} 
+    else {run(-sp,-sp);} 
   }
 }
 
@@ -441,6 +441,80 @@ void cpl(float targetAngle,uint8_t speed){
   }
 }
 
+
+void cpll(float targetAngle){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(10,100);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cpll(float targetAngle,uint8_t speed){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run((speed*0.05),speed);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cpll(float targetAngle,uint8_t speed,uint8_t percentage){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run((speed*(percentage/100)),speed);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+
 void cpl_OLED(float targetAngle){
   OLED.clear();
   float currentAngle = 0.0;
@@ -551,6 +625,79 @@ void cpr(float targetAngle,uint8_t speed){
   }
 }
 
+
+void cprr(float targetAngle){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(100,10);
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cprr(float targetAngle,uint8_t speed){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(speed,(speed*0.05));
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
+void cprr(float targetAngle,uint8_t speed,uint8_t percentage){
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  while(1){
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+
+    if (abs(currentAngle) < targetAngle) {
+      run(speed,(speed*(percentage/100)));
+    }
+    else{
+      run(0,0);
+      break;
+    }
+  }
+}
+
 void cpr_OLED(float targetAngle){
   OLED.clear();
   float currentAngle = 0.0;
@@ -652,6 +799,44 @@ void FDcp(int baseSpeed,float Kp,unsigned long t) {
   }
 }
 
+void FPPcp(int baseSpeed,float Kp) {
+  float currentAngle = 0.0;
+  unsigned long previousTime = millis();
+  float targetAngle = 0;    // มุมเป้าหมาย (ทิศที่ต้องการรักษาไว้)
+  while(1){
+    analogs();
+    accelgyro.getRotation(&gx, &gy, &gz);
+    unsigned long currentTime = millis();
+    float dt = (currentTime - previousTime) / 1000.0;
+    //previousTime = currentTime;
+    float gyroZ_degPerSec = (gz - gyroErrorZ) / 131.0;
+    if(abs(gyroZ_degPerSec) < 0.5) {
+      gyroZ_degPerSec = 0;
+    }
+    currentAngle += (gyroZ_degPerSec * dt);
+    float error = targetAngle - currentAngle;  
+    int turnAdjustment = constrain(error * Kp,-baseSpeed*0.25,baseSpeed*0.25);
+
+    if((s0 < cen0) or (s2 < cen2)){
+      run(0,0);delay(100);
+      while(1) {
+        analogs();
+        if ((s0 < cen0) and (s2 < cen2)) {
+          run(0,0);delay(100); break;
+        }
+        else if (s0 < cen0) {run(-mfl, mfr);}
+        else if (s2 < cen2) {run(mfl, -mfr);}
+        else {run(fl,fr);} 
+      }
+      break;
+    }
+    else{
+      run(baseSpeed - turnAdjustment, baseSpeed + turnAdjustment);
+    }
+
+  }
+}
+
 void BDcp(int baseSpeed,float Kp,unsigned long t) {
   OLED.clear();
   float currentAngle = 0.0;
@@ -680,7 +865,7 @@ void BDcp(int baseSpeed,float Kp,unsigned long t) {
     OLED.print(F("kp = "));
     OLED.print(Kp);
 
-    run(baseSpeed + turnAdjustment, baseSpeed - turnAdjustment);
+    run(-(baseSpeed + turnAdjustment), -(baseSpeed - turnAdjustment));
 
     if(millis() - previousTime >= t){
       run(0,0);

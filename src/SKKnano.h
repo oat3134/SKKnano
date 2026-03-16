@@ -63,13 +63,20 @@ void Set_mpu6050();
 void sensor_with_mpu6050();
 void cpl(float targetAngle);
 void cpl(float targetAngle,uint8_t speed);
+void cpll(float targetAngle);
+void cpll(float targetAngle,uint8_t speed);
+void cpll(float targetAngle,uint8_t speed,uint8_t percentage);
 void cpl_OLED(float targetAngle);
 void cpl_OLED(float targetAngle,uint8_t speed);
 void cpr(float targetAngle);
 void cpr(float targetAngle,uint8_t speed);
+void cprr(float targetAngle);
+void cprr(float targetAngle,uint8_t speed);
+void cprr(float targetAngle,uint8_t speed,uint8_t percentage);
 void cpr_OLED(float targetAngle);
 void cpr_OLED(float targetAngle,uint8_t speed);
 void FDcp(int baseSpeed,float Kp,unsigned long t);
+void FPPcp(int baseSpeed,float Kp);
 void BDcp(int baseSpeed,float Kp,unsigned long t);
 
 
